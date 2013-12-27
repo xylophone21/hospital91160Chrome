@@ -1,0 +1,22 @@
+{
+  "manifest_version": 2,
+  "name": "91160 assistant",
+  "version": "0.0.1",
+  "description": "help to reservation to register on 91160.com",
+  "permissions": [ "notifications" , "http://*.91160.com/*"],
+  "web_accessible_resources": [
+    "icon.png"
+  ],
+  "content_scripts": [
+  	{
+    	"matches": ["http://*.91160.com/doc/show/depid-*/docid-*.html"],
+    	"js": ["refresh_book.js"],
+    	"run_at": "document_idle"
+	}
+  ],
+  
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  }
+}
