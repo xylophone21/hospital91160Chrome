@@ -2,6 +2,22 @@ function notify(title,msg) {
 	chrome.extension.sendMessage({ event:"notify", message:msg, title:title });
 }
 
+var s_dateDiff;
+function init_server_time() {
+	var http = new XMLHttpRequest;   
+	http.open("HEAD", ".", false);   
+	http.send(null);   
+	var server = new Date(http.getResponseHeader("Date"));
+	var local = new Date()
+	s_dateDiff = server.getTime() - local.getTime()
+	console.log(s_dateDiff);
+	console.log(server);
+}
+
+function get_server_time() {
+	return new Date(new Date().getTime() + s_dateDiff);
+}
+
 function add_plguin_div() {
 	var bars = document.getElementsByClassName('bar_middle');
 	if(bars.length > 0) {
@@ -10,7 +26,7 @@ function add_plguin_div() {
 		pluginDiv.id="plugin_div"
 		html = "<input id='auto_refresh' type='checkbox'>自动";
 		html += "<a id='refresh_link' href='javascript:_jyDocSchMast(_thks_unit_id,_thks_dep_id,_thks_doc_id,_state_time);';>刷新</a>&nbsp;&nbsp;&nbsp;&nbsp;";
-		//html += "服务器时间:<div id='server_time'></div>"
+		html += "服务器时间:<div id='server_time'></div>"
 		
 		pluginDiv.innerHTML = html;
 		bar.appendChild(pluginDiv);
@@ -21,7 +37,10 @@ function add_plguin_div() {
 }
 
 function timer_trikcer() {
-	//console.log("timer_trikcer");
+	var stime = get_server_time().toLocaleTimeString();
+	var servertime=document.getElementById("server_time");
+	servertime.innerHTML = stime;
+
 	var auto_refresh_click=document.getElementById("auto_refresh");
 	if(auto_refresh_click.checked==true) {
 		//console.log("timer_trikcer checked");
@@ -43,7 +62,8 @@ function timer_trikcer() {
 
 var s_last_refresh;
 function do_refresh_ifneed() {
-	var now = (new Date()).getTime();
+	var now = (new Date() + s_dateDiff);
+	
 	if(s_last_refresh == undefined) {
 		//console.log("do first refresh");
 		s_last_refresh = now;
@@ -76,6 +96,10 @@ function check_orders() {
 	return false;
 }
 
+
+init_server_time();
 add_plguin_div();
+
+
 window.setTimeout(timer_trikcer,1000);
 
